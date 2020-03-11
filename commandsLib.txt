@@ -1,0 +1,5 @@
+Here are some commands. They were on my google drive, but I wanted to put them onto git, and keep on them also on the RPI.
+Example compile code:
+		♥ arduino-cli compile -b arduino:avr:uno -p /dev/ttyACM0 thruster
+to upload, use same command with "upload" instead of "compile"
+
