@@ -1,31 +1,54 @@
 #!/usr/bin/env python
-# WS server example
+# websocketBasicServer.py
 
 import asyncio
 import websockets
 import serial
 import time
+import json
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
 
 connected = set()
 
-async def hello(websocket, path):
+async def sendSerial():
+	while True:
+		if ser.isOpen():
+			ser.write(3)
+			print("3")
+			await asyncio.sleep(1)
+			ser.write(2)
+			print("2")
+			await asyncio.sleep(1)
+		else:
+			print("opening error")
+			await asyncio.sleep(2)
+
+async def websocketJoystick(websocket, path):
 	connected.add(websocket)
 	while True:
-			name = await websocket.recv()
+			info  = await websocket.recv()
 			#ser.write(b'A128\n')
-			ser.write('{}\n'.format(name).encode())
-			
-			print(f"< {name}")
+			ser.write('{}\n'.format(info).encode())
 
-			greeting = f"Hail and well met, {name}!"
+			print(f"recieved: {info}")
 
-			# await websocket.send(greeting)
-			await asyncio.wait([ws.send(greeting) for ws in connected])
-			print(f"> {greeting}")
+			# returnInfo = info
 
-start_server = websockets.serve(hello, "0.0.0.0", 8765)
+			# await websocket.send(returnInfo)
+			await asyncio.wait([ws.send(info) for ws in connected])
+			#print(f"> {greeting}")
+            
+			await asyncio.sleep(0.5)
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+async def joystickGet():
+	server = await websockets.serve(websocketJoystick, "0.0.0.0", 8765)
+	await server.wait_closed() 
+	
+if __name__ == "__main__":
+	while True:
+		asyncio.run(sendSerial())
+		asyncio.run(joystickGet())
+
+#asyncio.get_event_loop().run_until_complete(server)
+#asyncio.get_event_loop().run_forever()
