@@ -5,6 +5,7 @@ import serial
 import time
 
 async def hello(websocket, path):
+	print("Connected")
 	while True:
 			num = await websocket.recv()
 			print(f"< {num}")

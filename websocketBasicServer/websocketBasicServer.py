@@ -50,17 +50,9 @@ async def websocketJoystick(websocket, path):
 	connected.add(websocket)
 	while True:
 			info  = await websocket.recv()
-			#ser.write(b'A128\n')
-			ser.write('{}\n'.format(info).encode())
-
+			#ser.write('{}\n'.format(info).encode())
 			print(f"recieved: {info}")
-
-			# returnInfo = info
-
-			# await websocket.send(returnInfo)
 			await asyncio.wait([ws.send(info) for ws in connected])
-			#print(f"> {greeting}")
-            
 			await asyncio.sleep(0.5)
 
 async def joystickGet():
@@ -71,6 +63,7 @@ if __name__ == "__main__":
 	while True:
 		asyncio.run(sendSerialJson())
 		asyncio.run(joystickGet())
+	
 		if ser.isOpen():
 			line = ser.readline()
 			print(line)
