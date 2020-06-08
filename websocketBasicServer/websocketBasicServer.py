@@ -59,13 +59,21 @@ async def joystickGet():
 	server = await websockets.serve(websocketJoystick, "0.0.0.0", 8765)
 	await server.wait_closed() 
 
-async def main():
-	#send = asyncio.create_task(sendSerialJson())
-	receive = asyncio.create_task(joystickGet()) #create_task automagically makes the task run soon. 
+
+loop = asyncio.get_event_loop()
+get = loop.create_task(joystickGet())
+send = loop.create_task(sendSerialJson())
+
+loop.run_forever()
+
+
+#async def main():
+#	#send = asyncio.create_task(sendSerialJson())
+#	receive = asyncio.create_task(joystickGet()) #create_task automagically makes the task run soon. 
 	
-if __name__ == "__main__":
-	while True:
-		asyncio.run(main())
+#if __name__ == "__main__":
+#	while True:
+#		asyncio.run(main())
 	
 	#	if ser.isOpen():
 	#		line = ser.readline()
