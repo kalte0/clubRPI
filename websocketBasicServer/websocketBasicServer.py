@@ -12,9 +12,6 @@ ser = serial.Serial('/dev/ttyACM0', 9600)
 connected = set()
 
 data = {}
-data["Joy1"] = 0.56
-
-joyData = json.dumps(data);
 
 async def sendSerialNumber():
 	while True:
@@ -32,6 +29,8 @@ async def sendSerialNumber():
 async def sendSerialJson():
 	while True:
 		if ser.isOpen():
+			data["test"] = 1
+			joyData = json.dumps(data)
 			ser.write(joyData.encode('ascii'))
 			ser.flush() # Wait until information is sent before moving on.. I think?
 			try:    # Try to do this, if not run Exception code (Print error message)
@@ -51,7 +50,14 @@ async def websocketJoystick(websocket, path):
 	while True:
 			info  = await websocket.recv()
 			#ser.write('{}\n'.format(info).encode())
-			print(f"recieved: {info}")
+			#print(f"recieved: {info}")
+			data.clear()
+			try:
+				data.update(json.loads(info))
+			except json.decoder.JSONDecodeError as e:
+				print(e)
+				pass
+			print(data["Axis 0"])
 			await asyncio.wait([ws.send(info) for ws in connected])
 			await asyncio.sleep(0.5)
 

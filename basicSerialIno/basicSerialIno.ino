@@ -13,13 +13,13 @@ void setup() {
 	delay(1000);
 	digitalWrite(LED_BUILTIN, LOW);
 	delay(1000);
-	Serial.println("test"); 
 }
 
 void loop() {
 //	serialReadNumber();
 	serialReadJson();
 }
+
 
 int serialReadNumber() {
 	if (Serial.available()) { //when get Serial info:
@@ -45,11 +45,17 @@ int serialReadJson() {
 	if (error) {
 		 Serial.println("Failed to read file"); 
 	}
-	if (doc["Joy1"] == 0.56) {
-		Serial.println("You succeeded");
-	}
-	else {
+	else{
+		if (doc["test"] == 1) {
+		//Serial.println("You succeeded");
+		float x = doc["Axis 0"];
+		x = x*100;
+		int y = x; 
+		Serial.println(y);
+		}
+		else {
 		Serial.println("Bruh you failed"); 
+		}
 	}
 	
 }
