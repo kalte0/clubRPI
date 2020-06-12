@@ -1,10 +1,16 @@
 // Arduino file vvv
 // ~/clubRPI/basicSerialIno.ino
 
+#include <Wire.h>
 #include <ArduinoJson.h>
+#include <Adafruit_LEDBackpack.h>
+#include <Adafruit_GFX.h>
+
+Adafruit_7segment matrix = Adafruit_7segment(); 
 
 char hotgos;
-String payload;
+int     size_ = 0;
+String  payload;
 
 void setup() {
 	Serial.begin(9600);
@@ -13,6 +19,10 @@ void setup() {
 	delay(1000);
 	digitalWrite(LED_BUILTIN, LOW);
 	delay(1000);
+	matrix.begin(0x70); // Code for the 7seg - write a quick test. 
+	matrix.print(100);
+	matrix.writeDisplay(); 
+	
 }
 
 void loop() {
@@ -21,7 +31,7 @@ void loop() {
 }
 
 
-int serialReadNumber() {
+int serialReadNumber() { // old method only here for basic serial troubleshooting
 	if (Serial.available()) { //when get Serial info:
 		int inChar = Serial.read(); 
 		hotgos = (char)inChar;
@@ -37,24 +47,29 @@ int serialReadNumber() {
 int serialReadJson() {
 	if (Serial.available()) { 
 		Serial.println("Serial Available");
+		while ( !Serial.available()) {}
 		payload = Serial.readStringUntil('/n');	
 	}
 	StaticJsonDocument<512> doc; //This creates a temporary JsonDocument called doc. 
-	DeserializationError error = deserializeJson(doc, payload); 
 
+	DeserializationError error = deserializeJson(doc, payload); // error detection
 	if (error) {
-		 Serial.println("Failed to read file"); 
+		matrix.print(1010);
+		Serial.println(error.c_str());
+		matrix.writeDisplay(); 
 	}
+
 	else{
-		if (doc["test"] == 1) {
-		//Serial.println("You succeeded");
-		float x = doc["Axis 0"];
-		x = x*100;
-		int y = x; 
-		Serial.println(y);
+		if (doc["axis0"] <= 10) { // If it can read the "test" value from the document:
+			//Serial.println("You succeeded");
+			int y = doc["axis0"]; // done because not sure if matrix.print can read from an array.  
+			Serial.print(y); 
+			matrix.print(y);
+			matrix.writeDisplay(); 
 		}
 		else {
-		Serial.println("Bruh you failed"); 
+			matrix.print(1111); //Failure message
+			matrix.writeDisplay(); 
 		}
 	}
 	
